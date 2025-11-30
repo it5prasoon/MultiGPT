@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Light Mode -->
+    <color name="primary_light">#6366F1</color>
+    <color name="on_primary_light">#FFFFFF</color>
+    <color name="primary_container_light">#E0E7FF</color>
+    <color name="on_primary_container_light">#1E1B4B</color>
+
+    <!-- Secondary Colors - Light Mode -->
+    <color name="secondary_light">#8B5CF6</color>
+    <color name="on_secondary_light">#FFFFFF</color>
+    <color name="secondary_container_light">#EDE9FE</color>
+    <color name="on_secondary_container_light">#2E1065</color>
+
+    <!-- Surface Colors - Light Mode -->
+    <color name="surface_light">#FFFFFF</color>
+    <color name="on_surface_light">#1F2937</color>
+    <color name="surface_variant_light">#F3F4F6</color>
+    <color name="on_surface_variant_light">#6B7280</color>
+
+    <!-- Background Colors - Light Mode -->
+    <color name="background_light">#FFFFFF</color>
+    <color name="on_background_light">#1F2937</color>
+
+    <!-- Semantic Colors - Light Mode -->
+    <color name="error_light">#EF4444</color>
+    <color name="on_error_light">#FFFFFF</color>
+    <color name="error_container_light">#FEE2E2</color>
+    <color name="on_error_container_light">#7F1D1D</color>
+
+    <!-- Additional Semantic Colors -->
+    <color name="success">#10B981</color>
+    <color name="warning">#F59E0B</color>
+    <color name="info">#3B82F6</color>
+
+    <!-- Outline and Divider Colors - Light Mode -->
+    <color name="outline_light">#D1D5DB</color>
+    <color name="outline_variant_light">#E5E7EB</color>
+
+    <!-- Icon Background Color -->
+    <color name="ic_multigpt_background">#6366F1</color>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Dark Mode -->
+    <color name="primary_dark">#818CF8</color>
+    <color name="on_primary_dark">#1E1B4B</color>
+    <color name="primary_container_dark">#3730A3</color>
+    <color name="on_primary_container_dark">#E0E7FF</color>
+
+    <!-- Secondary Colors - Dark Mode -->
+    <color name="secondary_dark">#A78BFA</color>
+    <color name="on_secondary_dark">#2E1065</color>
+    <color name="secondary_container_dark">#5B21B6</color>
+    <color name="on_secondary_container_dark">#EDE9FE</color>
+
+    <!-- Surface Colors - Dark Mode -->
+    <color name="surface_dark">#111827</color>
+    <color name="on_surface_dark">#F9FAFB</color>
+    <color name="surface_variant_dark">#1F2937</color>
+    <color name="on_surface_variant_dark">#9CA3AF</color>
+
+    <!-- Background Colors - Dark Mode -->
+    <color name="background_dark">#111827</color>
+    <color name="on_background_dark">#F9FAFB</color>
+
+    <!-- Semantic Colors - Dark Mode -->
+    <color name="error_dark">#F87171</color>
+    <color name="on_error_dark">#7F1D1D</color>
+    <color name="error_container_dark">#7F1D1D</color>
+    <color name="on_error_container_dark">#FEE2E2</color>
+
+    <!-- Additional Semantic Colors - Dark Mode -->
+    <color name="success_dark">#34D399</color>
+    <color name="warning_dark">#FBBF24</color>
+    <color name="info_dark">#60A5FA</color>
+
+    <!-- Outline and Divider Colors - Dark Mode -->
+    <color name="outline_dark">#374151</color>
+    <color name="outline_variant_dark">#1F2937</color>
+</resources>

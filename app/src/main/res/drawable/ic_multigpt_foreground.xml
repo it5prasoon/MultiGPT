@@ -1,0 +1,70 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <!-- Multiple AI nodes converging - representing multiple models under one hood -->
+  <!-- Scaled down to 0.7 for better padding within safe zone -->
+  <group
+      android:translateX="54"
+      android:translateY="54"
+      android:scaleX="0.7"
+      android:scaleY="0.7">
+    
+    <!-- Central hub circle (white for contrast) -->
+    <path
+        android:pathData="M0,0 m-12,0 a12,12 0,1 1,24 0 a12,12 0,1 1,-24 0"
+        android:fillColor="#FFFFFF"/>
+    
+    <!-- Top node (OpenAI - green tint) -->
+    <path
+        android:pathData="M0,-28 m-8,0 a8,8 0,1 1,16 0 a8,8 0,1 1,-16 0"
+        android:fillColor="#10B981"/>
+    <path
+        android:pathData="M0,-20 L0,-12"
+        android:strokeWidth="3"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"/>
+    
+    <!-- Right node (Anthropic - orange tint) -->
+    <path
+        android:pathData="M28,0 m-8,0 a8,8 0,1 1,16 0 a8,8 0,1 1,-16 0"
+        android:fillColor="#F59E0B"/>
+    <path
+        android:pathData="M20,0 L12,0"
+        android:strokeWidth="3"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"/>
+    
+    <!-- Bottom node (Google - blue tint) -->
+    <path
+        android:pathData="M0,28 m-8,0 a8,8 0,1 1,16 0 a8,8 0,1 1,-16 0"
+        android:fillColor="#3B82F6"/>
+    <path
+        android:pathData="M0,20 L0,12"
+        android:strokeWidth="3"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"/>
+    
+    <!-- Left node (Others - purple tint) -->
+    <path
+        android:pathData="M-28,0 m-8,0 a8,8 0,1 1,16 0 a8,8 0,1 1,-16 0"
+        android:fillColor="#A78BFA"/>
+    <path
+        android:pathData="M-20,0 L-12,0"
+        android:strokeWidth="3"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"/>
+    
+    <!-- Small dots in center hub to represent unified interface -->
+    <path
+        android:pathData="M-4,-2 m-2,0 a2,2 0,1 1,4 0 a2,2 0,1 1,-4 0"
+        android:fillColor="#6366F1"/>
+    <path
+        android:pathData="M4,-2 m-2,0 a2,2 0,1 1,4 0 a2,2 0,1 1,-4 0"
+        android:fillColor="#6366F1"/>
+    <path
+        android:pathData="M0,4 m-2,0 a2,2 0,1 1,4 0 a2,2 0,1 1,-4 0"
+        android:fillColor="#6366F1"/>
+  </group>
+</vector>
