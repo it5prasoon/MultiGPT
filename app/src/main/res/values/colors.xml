@@ -43,4 +43,29 @@
     <!-- Splash Screen Colors -->
     <color name="splash_background">#1E1B4B</color>
     <color name="splash_icon_background">#312E81</color>
+    
+    <!-- Dark Mode Base Declarations (defaults to light mode values) -->
+    <color name="primary_dark">@color/primary_light</color>
+    <color name="on_primary_dark">@color/on_primary_light</color>
+    <color name="primary_container_dark">@color/primary_container_light</color>
+    <color name="on_primary_container_dark">@color/on_primary_container_light</color>
+    <color name="secondary_dark">@color/secondary_light</color>
+    <color name="on_secondary_dark">@color/on_secondary_light</color>
+    <color name="secondary_container_dark">@color/secondary_container_light</color>
+    <color name="on_secondary_container_dark">@color/on_secondary_container_light</color>
+    <color name="surface_dark">@color/surface_light</color>
+    <color name="on_surface_dark">@color/on_surface_light</color>
+    <color name="surface_variant_dark">@color/surface_variant_light</color>
+    <color name="on_surface_variant_dark">@color/on_surface_variant_light</color>
+    <color name="background_dark">@color/background_light</color>
+    <color name="on_background_dark">@color/on_background_light</color>
+    <color name="error_dark">@color/error_light</color>
+    <color name="on_error_dark">@color/on_error_light</color>
+    <color name="error_container_dark">@color/error_container_light</color>
+    <color name="on_error_container_dark">@color/on_error_container_light</color>
+    <color name="success_dark">@color/success</color>
+    <color name="warning_dark">@color/warning</color>
+    <color name="info_dark">@color/info</color>
+    <color name="outline_dark">@color/outline_light</color>
+    <color name="outline_variant_dark">@color/outline_variant_light</color>
 </resources>
