@@ -29,6 +29,7 @@ import com.matrix.multigpt.presentation.ui.setup.SetupCompleteScreen
 import com.matrix.multigpt.presentation.ui.setup.SetupViewModel
 import com.matrix.multigpt.presentation.ui.setup.TokenInputScreen
 import com.matrix.multigpt.presentation.ui.startscreen.StartScreen
+import com.matrix.multigpt.presentation.ui.tour.FeatureTourScreen
 
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
@@ -49,7 +50,17 @@ fun SetupNavGraph(navController: NavHostController) {
 
 fun NavGraphBuilder.startScreenNavigation(navController: NavHostController) {
     composable(Route.GET_STARTED) {
-        StartScreen { navController.navigate(Route.SETUP_ROUTE) }
+        StartScreen(
+            onStartClick = { navController.navigate(Route.SETUP_ROUTE) },
+            onSkipClick = { navController.navigate(Route.FEATURE_TOUR) }
+        )
+    }
+    
+    composable(Route.FEATURE_TOUR) {
+        FeatureTourScreen(
+            onSetupNow = { navController.navigate(Route.SETUP_ROUTE) },
+            onSkipSetup = { navController.navigate(Route.CHAT_LIST) }
+        )
     }
 }
 

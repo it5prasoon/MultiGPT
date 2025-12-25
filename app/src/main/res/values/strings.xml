@@ -4,6 +4,7 @@
     <string name="welcome_title">Chat with multiple\nAI models at once</string>
     <string name="welcome_description">Connect to OpenAI, Claude, Gemini, AWS Bedrock, and more.\nAll from one powerful app.</string>
     <string name="get_started">Get Started</string>
+    <string name="explore_first">Explore app first</string>
     <string name="platform_select_description">Choose the platform you want to use. You can change this later in settings. More platforms to be supported.</string>
     <string name="sample_item_title">Item 1</string>
     <string name="sample_item_description">Item description</string>

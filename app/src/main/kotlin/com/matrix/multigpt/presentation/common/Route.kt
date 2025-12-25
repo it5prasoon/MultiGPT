@@ -3,6 +3,7 @@ package com.matrix.multigpt.presentation.common
 object Route {
 
     const val GET_STARTED = "get_started"
+    const val FEATURE_TOUR = "feature_tour"
 
     const val SETUP_ROUTE = "setup_route"
     const val SELECT_PLATFORM = "select_platform"

@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +27,10 @@ import com.matrix.multigpt.presentation.common.PrimaryLongButton
 import com.matrix.multigpt.presentation.icons.MultiGPTStartScreen
 
 @Composable
-fun StartScreen(onStartClick: () -> Unit) {
+fun StartScreen(
+    onStartClick: () -> Unit,
+    onSkipClick: () -> Unit
+) {
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
             modifier = Modifier
@@ -42,6 +46,16 @@ fun StartScreen(onStartClick: () -> Unit) {
                 onClick = onStartClick,
                 text = stringResource(R.string.get_started)
             )
+
+            TextButton(
+                onClick = onSkipClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.explore_first),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
         }
     }
 }
