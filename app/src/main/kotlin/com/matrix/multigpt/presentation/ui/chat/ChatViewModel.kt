@@ -1,6 +1,5 @@
 package com.matrix.multigpt.presentation.ui.chat
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -129,8 +128,10 @@ class ChatViewModel @Inject constructor(
     private val geminiNanoFlow = MutableSharedFlow<ApiState>()
 
     init {
-        Log.d("ViewModel", "$chatRoomId")
-        Log.d("ViewModel", "$enabledPlatformsInChat")
+        if (com.matrix.multigpt.BuildConfig.DEBUG) {
+            android.util.Log.d("ViewModel", "$chatRoomId")
+            android.util.Log.d("ViewModel", "$enabledPlatformsInChat")
+        }
         fetchChatRoom()
         viewModelScope.launch { fetchMessages() }
         fetchEnabledPlatformsInApp()
@@ -138,7 +139,9 @@ class ChatViewModel @Inject constructor(
     }
 
     fun askQuestion() {
-        Log.d("Question: ", _question.value)
+        if (com.matrix.multigpt.BuildConfig.DEBUG) {
+            android.util.Log.d("Question: ", _question.value)
+        }
         _userMessage.update { it.copy(content = _question.value, createdAt = currentTimeStamp) }
         _question.update { "" }
         completeChat()
@@ -380,7 +383,9 @@ class ChatViewModel @Inject constructor(
                     chatRepository.fetchChatList().first { it.id == chatRoomId }
                 }
             }
-            Log.d("ViewModel", "chatroom: $chatRoom")
+            if (com.matrix.multigpt.BuildConfig.DEBUG) {
+                android.util.Log.d("ViewModel", "chatroom: $chatRoom")
+            }
         }
     }
 
@@ -444,10 +449,14 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             _isIdle.collect { status ->
                 if (status) {
-                    Log.d("status", "val: ${_userMessage.value}")
+                    if (com.matrix.multigpt.BuildConfig.DEBUG) {
+                        android.util.Log.d("status", "val: ${_userMessage.value}")
+                    }
                     if (_chatRoom.value.id != -1 && _userMessage.value.content.isNotBlank()) {
                         syncQuestionAndAnswers()
-                        Log.d("message", "${_messages.value}")
+                        if (com.matrix.multigpt.BuildConfig.DEBUG) {
+                            android.util.Log.d("message", "${_messages.value}")
+                        }
                         _chatRoom.update { chatRepository.saveChat(_chatRoom.value, _messages.value) }
                         fetchMessages() // For syncing message ids
                     }

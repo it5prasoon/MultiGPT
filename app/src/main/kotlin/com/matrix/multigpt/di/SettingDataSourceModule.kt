@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import com.matrix.multigpt.data.datastore.SettingDataSource
 import com.matrix.multigpt.data.datastore.SettingDataSourceImpl
+import com.matrix.multigpt.util.SecureCredentialManager
 import javax.inject.Singleton
 
 @Module
@@ -15,5 +16,8 @@ import javax.inject.Singleton
 object SettingDataSourceModule {
     @Provides
     @Singleton
-    fun provideSettingDataStore(dataStore: DataStore<Preferences>): SettingDataSource = SettingDataSourceImpl(dataStore)
+    fun provideSettingDataStore(
+        dataStore: DataStore<Preferences>,
+        secureCredentialManager: SecureCredentialManager
+    ): SettingDataSource = SettingDataSourceImpl(dataStore, secureCredentialManager)
 }

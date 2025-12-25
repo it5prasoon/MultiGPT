@@ -19,8 +19,8 @@ android {
         applicationId = "com.matrix.multigpt"
         minSdk = 31
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.25.3"
+        versionCode = 7
+        versionName = "1.25.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -53,6 +53,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -78,6 +79,9 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore)
+
+    // Security
+    implementation(libs.androidx.security.crypto)
 
     // Dependency Injection
     implementation(libs.hilt)

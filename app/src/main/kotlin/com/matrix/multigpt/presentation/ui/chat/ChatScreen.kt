@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -153,7 +152,9 @@ fun ChatScreen(
         listState.animateScrollToItem(groupedMessages.keys.size)
     }
 
-    Log.d("AIPackage", "AICore: ${aiCorePackageInfo?.versionName ?: "Not installed"}, Private Compute Services: ${privateComputePackageInfo?.versionName ?: "Not installed"}")
+    if (com.matrix.multigpt.BuildConfig.DEBUG) {
+        android.util.Log.d("AIPackage", "AICore: ${aiCorePackageInfo?.versionName ?: "Not installed"}, Private Compute Services: ${privateComputePackageInfo?.versionName ?: "Not installed"}")
+    }
 
     Scaffold(
         modifier = Modifier
@@ -195,7 +196,9 @@ fun ChatScreen(
         },
         floatingActionButtonPosition = FabPosition.Center
     ) { innerPadding ->
-        groupedMessages.forEach { (i, k) -> Log.d("grouped", "idx: $i, data: $k") }
+        if (com.matrix.multigpt.BuildConfig.DEBUG) {
+            groupedMessages.forEach { (i, k) -> android.util.Log.d("grouped", "idx: $i, data: $k") }
+        }
         LazyColumn(
             modifier = Modifier.padding(innerPadding),
             state = listState
@@ -469,7 +472,9 @@ private fun exportChat(context: Context, chatViewModel: ChatViewModel) {
         }
         context.startActivity(chooser)
     } catch (e: Exception) {
-        Log.e("ChatExport", "Failed to export chat", e)
+        if (com.matrix.multigpt.BuildConfig.DEBUG) {
+            android.util.Log.e("ChatExport", "Failed to export chat", e)
+        }
         Toast.makeText(context, "Failed to export chat", Toast.LENGTH_SHORT).show()
     }
 }

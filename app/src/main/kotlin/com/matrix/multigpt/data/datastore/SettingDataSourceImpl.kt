@@ -10,12 +10,14 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.matrix.multigpt.data.model.ApiType
 import com.matrix.multigpt.data.model.DynamicTheme
 import com.matrix.multigpt.data.model.ThemeMode
+import com.matrix.multigpt.util.SecureCredentialManager
 import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class SettingDataSourceImpl @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val secureCredentialManager: SecureCredentialManager
 ) : SettingDataSource {
     private val apiStatusMap = mapOf(
         ApiType.OPENAI to booleanPreferencesKey("openai_status"),
@@ -38,8 +40,8 @@ class SettingDataSourceImpl @Inject constructor(
         ApiType.ANTHROPIC to stringPreferencesKey("anthropic_token"),
         ApiType.GOOGLE to stringPreferencesKey("google_ai_platform_token"),
         ApiType.GROQ to stringPreferencesKey("groq_token"),
-        ApiType.OLLAMA to stringPreferencesKey("ollama_token"),
-        ApiType.BEDROCK to stringPreferencesKey("bedrock_credentials")
+        ApiType.OLLAMA to stringPreferencesKey("ollama_token")
+        // BEDROCK credentials now handled by SecureCredentialManager
     )
     private val apiModelMap = mapOf(
         ApiType.OPENAI to stringPreferencesKey("openai_model"),
@@ -101,8 +103,13 @@ class SettingDataSourceImpl @Inject constructor(
     }
 
     override suspend fun updateToken(apiType: ApiType, token: String) {
-        dataStore.edit { pref ->
-            pref[apiTokenMap[apiType]!!] = token
+        if (apiType == ApiType.BEDROCK) {
+            // Use secure storage for sensitive AWS credentials
+            secureCredentialManager.storeCredentials("bedrock_credentials", token)
+        } else {
+            dataStore.edit { pref ->
+                pref[apiTokenMap[apiType]!!] = token
+            }
         }
     }
 
@@ -154,9 +161,16 @@ class SettingDataSourceImpl @Inject constructor(
         pref[apiUrlMap[apiType]!!]
     }.first()
 
-    override suspend fun getToken(apiType: ApiType): String? = dataStore.data.map { pref ->
-        pref[apiTokenMap[apiType]!!]
-    }.first()
+    override suspend fun getToken(apiType: ApiType): String? {
+        return if (apiType == ApiType.BEDROCK) {
+            // Retrieve AWS credentials from secure storage
+            secureCredentialManager.retrieveCredentials("bedrock_credentials")
+        } else {
+            dataStore.data.map { pref ->
+                pref[apiTokenMap[apiType]!!]
+            }.first()
+        }
+    }
 
     override suspend fun getModel(apiType: ApiType): String? = dataStore.data.map { pref ->
         pref[apiModelMap[apiType]!!]

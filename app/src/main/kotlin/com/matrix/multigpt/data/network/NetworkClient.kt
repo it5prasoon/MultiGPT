@@ -43,8 +43,15 @@ class NetworkClient @Inject constructor(
 
             install(Logging) {
                 logger = Logger.DEFAULT
-                level = LogLevel.ALL
-                sanitizeHeader { header -> header == HttpHeaders.Authorization }
+                level = if (com.matrix.multigpt.BuildConfig.DEBUG) LogLevel.HEADERS else LogLevel.NONE
+                sanitizeHeader { header -> 
+                    // Sanitize all credential-related headers
+                    header == HttpHeaders.Authorization || 
+                    header.lowercase().contains("key") || 
+                    header.lowercase().contains("token") ||
+                    header.lowercase().contains("credential") ||
+                    header.lowercase().contains("secret")
+                }
             }
 
             install(DefaultRequest) {
