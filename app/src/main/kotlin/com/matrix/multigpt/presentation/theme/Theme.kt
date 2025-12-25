@@ -395,8 +395,8 @@ val unspecified_scheme = ColorFamily(
 
 @Composable
 fun GPTMobileTheme(
-    dynamicTheme: DynamicTheme = DynamicTheme.OFF,
-    themeMode: ThemeMode = ThemeMode.LIGHT,
+    dynamicTheme: DynamicTheme = DynamicTheme.ON,
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     content: @Composable () -> Unit
 ) {
     val useDynamicColor = dynamicTheme == DynamicTheme.ON

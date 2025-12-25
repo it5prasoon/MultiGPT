@@ -49,7 +49,7 @@ class SettingRepositoryImpl @Inject constructor(
     }
 
     override suspend fun fetchThemes(): ThemeSetting = ThemeSetting(
-        dynamicTheme = settingDataSource.getDynamicTheme() ?: DynamicTheme.OFF,
+        dynamicTheme = settingDataSource.getDynamicTheme() ?: DynamicTheme.ON,
         themeMode = settingDataSource.getThemeMode() ?: ThemeMode.SYSTEM
     )
 
