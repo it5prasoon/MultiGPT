@@ -125,6 +125,8 @@ class HomeViewModel @Inject constructor(
 
     fun fetchPlatformStatus() {
         viewModelScope.launch {
+            // Add a small delay to ensure DataStore writes from setup are completed
+            kotlinx.coroutines.delay(100)
             val platforms = settingRepository.fetchPlatforms()
             _platformState.update { platforms }
         }

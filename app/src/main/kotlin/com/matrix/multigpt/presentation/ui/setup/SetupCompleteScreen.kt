@@ -62,16 +62,18 @@ fun SetupCompleteScreen(
             Spacer(modifier = Modifier.weight(1f))
             PrimaryLongButton(
                 onClick = {
-                    setupViewModel.savePlatformState()
-                    val nextStep = setupViewModel.getNextSetupRoute(currentRoute)
-                    
-                    // Show interstitial ad after setup completion
-                    activity?.let { act ->
-                        AdMobManager.showInterstitialAd(act, R.string.setup_complete_interstitial) {
+                    // Save platform state and wait for completion before navigating
+                    setupViewModel.savePlatformState {
+                        val nextStep = setupViewModel.getNextSetupRoute(currentRoute)
+                        
+                        // Show interstitial ad after setup completion
+                        activity?.let { act ->
+                            AdMobManager.showInterstitialAd(act, R.string.setup_complete_interstitial) {
+                                onNavigate(nextStep)
+                            }
+                        } ?: run {
                             onNavigate(nextStep)
                         }
-                    } ?: run {
-                        onNavigate(nextStep)
                     }
                 },
                 text = stringResource(R.string.done)

@@ -121,19 +121,28 @@ class SetupViewModel @Inject constructor(
         }
     }
 
-    fun savePlatformState() {
-        _platformState.update { platforms ->
-            // Update to platform enabled value
-            platforms.map { p ->
-                p.copy(enabled = p.selected, selected = false)
-            }
+    fun savePlatformState(onComplete: (() -> Unit)? = null) {
+        val updatedPlatforms = _platformState.value.map { p ->
+            p.copy(enabled = p.selected, selected = false)
         }
+        
+        _platformState.update { updatedPlatforms }
+        
         viewModelScope.launch {
-            // Log setup completion to Firebase
-            val enabledPlatforms = _platformState.value.filter { it.enabled }.map { it.name.toString() }
-            firebaseManager.logUserAction(FirebaseEvents.SETUP_COMPLETE, enabledPlatforms.joinToString(","))
-            
-            settingRepository.updatePlatforms(_platformState.value)
+            try {
+                // Log setup completion to Firebase
+                val enabledPlatforms = updatedPlatforms.filter { it.enabled }.map { it.name.toString() }
+                firebaseManager.logUserAction(FirebaseEvents.SETUP_COMPLETE, enabledPlatforms.joinToString(","))
+                
+                // Wait for the repository update to complete
+                settingRepository.updatePlatforms(updatedPlatforms)
+                
+                // Call completion callback after DataStore write completes
+                onComplete?.invoke()
+            } catch (e: Exception) {
+                // Handle error case and still allow navigation
+                onComplete?.invoke()
+            }
         }
     }
 
