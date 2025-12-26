@@ -1,18 +1,13 @@
 package com.matrix.multigpt.data.network
 
-import com.matrix.multigpt.data.dto.bedrock.BedrockAuthMethod
 import com.matrix.multigpt.data.dto.bedrock.BedrockCredentials
 import com.matrix.multigpt.data.dto.bedrock.BedrockError
-import com.matrix.multigpt.data.dto.bedrock.BedrockMessage
-import com.matrix.multigpt.data.dto.bedrock.BedrockRequest
 import com.matrix.multigpt.data.dto.bedrock.BedrockStreamChunk
 import com.matrix.multigpt.data.dto.bedrock.ConverseContent
 import com.matrix.multigpt.data.dto.bedrock.ConverseInferenceConfig
 import com.matrix.multigpt.data.dto.bedrock.ConverseMessage
 import com.matrix.multigpt.data.dto.bedrock.ConverseRequest
 import com.matrix.multigpt.data.dto.bedrock.ConverseSystemMessage
-import com.matrix.multigpt.data.dto.bedrock.TextGenerationConfig
-import com.matrix.multigpt.util.AwsSignatureV4
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.headers
@@ -23,17 +18,11 @@ import io.ktor.client.statement.HttpStatement
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.cancel
-import io.ktor.utils.io.readUTF8Line
 import javax.inject.Inject
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -44,24 +33,6 @@ class BedrockAPIImpl @Inject constructor(
 
     private var bedrockCredentials: BedrockCredentials? = null
 
-    override fun setCredentials(credentials: AwsSignatureV4.AwsCredentials?) {
-        // Convert old format to new format for backwards compatibility
-        this.bedrockCredentials = credentials?.let {
-            BedrockCredentials(
-                authMethod = BedrockAuthMethod.SIGNATURE_V4,
-                accessKeyId = it.accessKeyId,
-                secretAccessKey = it.secretAccessKey,
-                region = it.region,
-                sessionToken = it.sessionToken
-            )
-        }
-    }
-
-    override fun setRegion(region: String) {
-        bedrockCredentials = bedrockCredentials?.copy(region = region) ?: BedrockCredentials(region = region)
-    }
-
-    // New method to set complete Bedrock credentials
     override fun setBedrockCredentials(credentials: BedrockCredentials?) {
         this.bedrockCredentials = credentials
     }
@@ -82,92 +53,30 @@ class BedrockAPIImpl @Inject constructor(
                     return@flow
                 }
 
-                val request = createRequest(messages, model, systemPrompt, temperature, maxTokens, topP)
-                val requestBody = Json.encodeToJsonElement(request).toString()
+                // Use Bearer token authentication with Converse API
+                if (creds.apiKey.isBlank()) {
+                    emit(BedrockStreamChunk(error = BedrockError(type = "auth_error", message = "Bedrock API key is required")))
+                    return@flow
+                }
                 
-                val (uri, endpoint, builder) = when (creds.authMethod) {
-                    BedrockAuthMethod.API_KEY -> {
-                        // Use Bearer token authentication with Converse API
-                        if (creds.apiKey.isBlank()) {
-                            emit(BedrockStreamChunk(error = BedrockError(type = "auth_error", message = "Bedrock API key is required")))
-                            return@flow
-                        }
-                        
-                        val converseUri = "/model/${model}/converse"
-                        val converseEndpoint = "https://bedrock-runtime.${creds.region}.amazonaws.com${converseUri}"
-                        val converseRequest = createConverseRequest(messages, systemPrompt, temperature, maxTokens, topP)
-                        val converseBody = Json.encodeToString(ConverseRequest.serializer(), converseRequest)
-                        
-                        Triple(
-                            converseUri,
-                            converseEndpoint,
-                            HttpRequestBuilder().apply {
-                                method = HttpMethod.Post
-                                url(converseEndpoint)
-                                contentType(ContentType.Application.Json)
-                                setBody(converseBody)
-                                headers {
-                                    append("Authorization", "Bearer ${creds.apiKey}")
-                                    append("Content-Type", "application/json")
-                                }
-                            }
-                        )
-                    }
-                    
-                    BedrockAuthMethod.SIGNATURE_V4 -> {
-                        // Use AWS Signature V4 authentication
-                        if (creds.accessKeyId.isBlank() || creds.secretAccessKey.isBlank()) {
-                            emit(BedrockStreamChunk(error = BedrockError(type = "auth_error", message = "AWS Access Key ID and Secret Access Key are required")))
-                            return@flow
-                        }
-                        
-                        val streamUri = "/model/${model}/invoke-with-response-stream"
-                        val streamEndpoint = "https://bedrock-runtime.${creds.region}.amazonaws.com${streamUri}"
-                        
-                        val awsCredentials = AwsSignatureV4.AwsCredentials(
-                            accessKeyId = creds.accessKeyId,
-                            secretAccessKey = creds.secretAccessKey,
-                            sessionToken = creds.sessionToken,
-                            region = creds.region
-                        )
-                        
-                        val headers = mutableMapOf(
-                            "Content-Type" to "application/json",
-                            "Accept" to "application/vnd.amazon.eventstream"
-                        )
-                        
-                        val signedRequest = AwsSignatureV4.signRequest(
-                            method = "POST",
-                            uri = streamUri,
-                            headers = headers,
-                            payload = requestBody,
-                            credentials = awsCredentials,
-                            service = "bedrock"
-                        )
-
-                        Triple(
-                            streamUri,
-                            streamEndpoint,
-                            HttpRequestBuilder().apply {
-                                method = HttpMethod.Post
-                                url(streamEndpoint)
-                                contentType(ContentType.Application.Json)
-                                setBody(requestBody)
-                                
-                                signedRequest.headers.forEach { (key, value) ->
-                                    headers { append(key, value) }
-                                }
-                            }
-                        )
+                val converseUri = "/model/${model}/converse"
+                val converseEndpoint = "https://bedrock-runtime.us-east-1.amazonaws.com${converseUri}"
+                val converseRequest = createConverseRequest(messages, systemPrompt, temperature, maxTokens, topP)
+                val converseBody = Json.encodeToString(ConverseRequest.serializer(), converseRequest)
+                
+                val builder = HttpRequestBuilder().apply {
+                    method = HttpMethod.Post
+                    url(converseEndpoint)
+                    contentType(ContentType.Application.Json)
+                    setBody(converseBody)
+                    headers {
+                        append("Authorization", "Bearer ${creds.apiKey}")
+                        append("Content-Type", "application/json")
                     }
                 }
 
                 HttpStatement(builder = builder, client = networkClient()).execute { response ->
-                    if (creds.authMethod == BedrockAuthMethod.API_KEY) {
-                        streamConverseEventsFrom(response)
-                    } else {
-                        streamEventsFrom(response, model)
-                    }
+                    streamConverseEventsFrom(response)
                 }
                 
             } catch (e: Exception) {
@@ -176,149 +85,6 @@ class BedrockAPIImpl @Inject constructor(
         }
     }
 
-    private fun createRequest(
-        messages: List<Pair<String, String>>,
-        model: String,
-        systemPrompt: String?,
-        temperature: Double?,
-        maxTokens: Int?,
-        topP: Double?
-    ): BedrockRequest {
-        
-        return when {
-            model.startsWith("anthropic.claude") -> {
-                // Anthropic Claude format
-                BedrockRequest(
-                    messages = messages.map { BedrockMessage(role = it.first, content = it.second) },
-                    max_tokens = maxTokens ?: 4096,
-                    temperature = temperature,
-                    top_p = topP,
-                    system = systemPrompt,
-                    anthropic_version = "bedrock-2023-05-31"
-                )
-            }
-            model.startsWith("amazon.titan") -> {
-                // Amazon Titan format
-                val conversationText = buildString {
-                    if (!systemPrompt.isNullOrEmpty()) {
-                        append("System: $systemPrompt\n\n")
-                    }
-                    messages.forEach { (role, content) ->
-                        val displayRole = when (role) {
-                            "user" -> "User"
-                            "assistant" -> "Assistant"
-                            else -> role.capitalize()
-                        }
-                        append("$displayRole: $content\n\n")
-                    }
-                    append("Assistant:")
-                }
-                
-                BedrockRequest(
-                    inputText = conversationText,
-                    textGenerationConfig = TextGenerationConfig(
-                        maxTokenCount = maxTokens ?: 4096,
-                        temperature = temperature,
-                        topP = topP
-                    )
-                )
-            }
-            model.startsWith("ai21.") -> {
-                // AI21 format
-                val prompt = buildString {
-                    if (!systemPrompt.isNullOrEmpty()) {
-                        append("$systemPrompt\n\n")
-                    }
-                    messages.forEach { (role, content) ->
-                        val displayRole = when (role) {
-                            "user" -> "Human"
-                            "assistant" -> "Assistant"
-                            else -> role.capitalize()
-                        }
-                        append("$displayRole: $content\n\n")
-                    }
-                    append("Assistant:")
-                }
-                
-                BedrockRequest(
-                    inputText = prompt,
-                    textGenerationConfig = TextGenerationConfig(
-                        maxTokenCount = maxTokens ?: 4096,
-                        temperature = temperature,
-                        topP = topP
-                    )
-                )
-            }
-            model.startsWith("cohere.") -> {
-                // Cohere format
-                val prompt = buildString {
-                    if (!systemPrompt.isNullOrEmpty()) {
-                        append("$systemPrompt\n\n")
-                    }
-                    messages.forEach { (role, content) ->
-                        append("$content\n")
-                    }
-                }
-                
-                BedrockRequest(
-                    inputText = prompt,
-                    textGenerationConfig = TextGenerationConfig(
-                        maxTokenCount = maxTokens ?: 4096,
-                        temperature = temperature,
-                        topP = topP
-                    )
-                )
-            }
-            model.startsWith("meta.llama") -> {
-                // Meta Llama format
-                val prompt = buildString {
-                    if (!systemPrompt.isNullOrEmpty()) {
-                        append("<s>[INST] <<SYS>>\n$systemPrompt\n<</SYS>>\n\n")
-                    } else {
-                        append("<s>[INST] ")
-                    }
-                    
-                    messages.forEachIndexed { index, (role, content) ->
-                        when (role) {
-                            "user" -> {
-                                if (index == 0 && !systemPrompt.isNullOrEmpty()) {
-                                    append("$content [/INST]")
-                                } else {
-                                    append("<s>[INST] $content [/INST]")
-                                }
-                            }
-                            "assistant" -> append(" $content </s>")
-                        }
-                    }
-                    
-                    if (messages.lastOrNull()?.first == "user") {
-                        // Ready for assistant response
-                    } else {
-                        append("<s>[INST] ")
-                    }
-                }
-                
-                BedrockRequest(
-                    inputText = prompt,
-                    textGenerationConfig = TextGenerationConfig(
-                        maxTokenCount = maxTokens ?: 4096,
-                        temperature = temperature,
-                        topP = topP
-                    )
-                )
-            }
-            else -> {
-                // Default format
-                BedrockRequest(
-                    messages = messages.map { BedrockMessage(role = it.first, content = it.second) },
-                    max_tokens = maxTokens ?: 4096,
-                    temperature = temperature,
-                    top_p = topP,
-                    system = systemPrompt
-                )
-            }
-        }
-    }
 
     private fun createConverseRequest(
         messages: List<Pair<String, String>>,
@@ -386,39 +152,4 @@ class BedrockAPIImpl @Inject constructor(
         }
     }
 
-    private suspend inline fun <reified T> FlowCollector<T>.streamEventsFrom(
-        response: HttpResponse,
-        model: String
-    ) {
-        val channel: ByteReadChannel = response.body()
-        val jsonInstance = Json { ignoreUnknownKeys = true }
-
-        try {
-            while (currentCoroutineContext().isActive && !channel.isClosedForRead) {
-                val line = channel.readUTF8Line() ?: continue
-                
-                when {
-                    line.isEmpty() -> continue
-                    line.startsWith("data:") -> {
-                        val data = line.removePrefix("data:").trim()
-                        if (data == "[DONE]") break
-                        
-                        try {
-                            val chunk: T = jsonInstance.decodeFromString(data)
-                            emit(chunk)
-                        } catch (e: Exception) {
-                            // Try to parse as error or continue
-                            continue
-                        }
-                    }
-                    line.startsWith("event:") -> {
-                        val event = line.removePrefix("event:").trim()
-                        if (event == "completion" || event == "done") break
-                    }
-                }
-            }
-        } finally {
-            channel.cancel()
-        }
-    }
 }

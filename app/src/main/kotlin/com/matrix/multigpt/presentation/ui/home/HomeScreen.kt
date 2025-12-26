@@ -149,7 +149,6 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.navigationBars)
-                    .padding(8.dp)
             )
         }
     ) { innerPadding ->
