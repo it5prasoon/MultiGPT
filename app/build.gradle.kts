@@ -143,3 +143,14 @@ aboutLibraries {
     // Remove the "generated" timestamp to allow for reproducible builds
     excludeFields = arrayOf("generated")
 }
+
+// Disable Crashlytics mapping file uploads in CI environments
+// This prevents build failures when using dummy google-services.json
+tasks.whenTaskAdded {
+    if (name.contains("uploadCrashlyticsMappingFile")) {
+        val isCI = System.getenv("CI") == "true" || System.getenv("GITHUB_ACTIONS") == "true"
+        if (isCI) {
+            enabled = false
+        }
+    }
+}
