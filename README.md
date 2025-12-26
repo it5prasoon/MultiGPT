@@ -21,9 +21,22 @@ MultiGPT allows users to communicate with multiple AI providers (OpenAI, Anthrop
 
 <div align="center">
 
-|                            Getting Started                            |                         Multi-Model Chat                          |                          Settings                          |
-|:---------------------------------------------------------------------:|:----------------------------------------------------------------:|:----------------------------------------------------------:|
-| <img src="metadata/en-US/images/phoneScreenshots/1.png" width="200"/> | <img src="metadata/en-US/images/phoneScreenshots/6.png" width="200"/> | <img src="metadata/en-US/images/phoneScreenshots/3.png" width="200"/> |
+### App Introduction & Setup
+|                            Getting Started                            |                               Settings                                |                              API Config                               |
+|:---------------------------------------------------------------------:|:---------------------------------------------------------------------:|:---------------------------------------------------------------------:|
+| <img src="metadata/en-US/images/phoneScreenshots/1.png" width="200"/> | <img src="metadata/en-US/images/phoneScreenshots/2.png" width="200"/> | <img src="metadata/en-US/images/phoneScreenshots/3.png" width="200"/> |
+
+|                            Model Selection                            |                             Custom Prompt                             |                              Chat Screen                              |
+|:---------------------------------------------------------------------:|:---------------------------------------------------------------------:|:---------------------------------------------------------------------:|
+| <img src="metadata/en-US/images/phoneScreenshots/4.png" width="200"/> | <img src="metadata/en-US/images/phoneScreenshots/5.png" width="200"/> | <img src="metadata/en-US/images/phoneScreenshots/6.png" width="200"/> |
+
+### Key Features Shown:
+- **Screenshot 1**: Welcome screen and app introduction
+- **Screenshot 2**: AI platform selection and configuration
+- **Screenshot 3**: API key setup and credential management
+- **Screenshot 4**: Settings menu with all available options
+- **Screenshot 5**: Theme selection and appearance customization
+- **Screenshot 6**: Multi-model chat interface in action
 
 </div>
 
