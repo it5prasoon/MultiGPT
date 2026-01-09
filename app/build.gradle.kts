@@ -13,12 +13,12 @@ plugins {
 
 android {
     namespace = "com.matrix.multigpt"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.matrix.multigpt"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 10
         versionName = "1.26.0"
 
