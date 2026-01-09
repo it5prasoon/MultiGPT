@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.union
@@ -173,54 +175,40 @@ fun ChatScreen(
         android.util.Log.d("AIPackage", "AICore: ${aiCorePackageInfo?.versionName ?: "Not installed"}, Private Compute Services: ${privateComputePackageInfo?.versionName ?: "Not installed"}")
     }
 
-    Scaffold(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .background(MaterialTheme.colorScheme.background)
+            .windowInsetsPadding(WindowInsets.statusBars)
+            .imePadding()
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }
-            ) { focusManager.clearFocus() },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = {
-            ChatTopBar(
-                chatRoom.title,
-                chatRoom.id > 0,
-                onBackAction,
-                scrollBehavior,
-                chatViewModel::openChatTitleDialog,
-                onExportChatItemClick = { exportChat(context, chatViewModel) }
-            )
-        },
-        bottomBar = {
-            ChatInputBox(
-                value = question,
-                onValueChange = { s -> chatViewModel.updateQuestion(s) },
-                chatEnabled = canUseChat,
-                sendButtonEnabled = question.trim().isNotBlank() && isIdle
-            ) {
-                chatViewModel.askQuestion()
-                focusManager.clearFocus()
-            }
-        },
-        floatingActionButton = {
-            if (listState.canScrollForward) {
-                ScrollToBottomButton {
-                    scope.launch {
-                        listState.animateScrollToItem(groupedMessages.keys.size)
-                    }
-                }
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { innerPadding ->
-        if (com.matrix.multigpt.BuildConfig.DEBUG) {
-            groupedMessages.forEach { (i, k) -> android.util.Log.d("grouped", "idx: $i, data: $k") }
-        }
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding),
-            state = listState
+            ) { focusManager.clearFocus() }
+    ) {
+        // Top Bar - always visible at top
+        ChatTopBar(
+            chatRoom.title,
+            chatRoom.id > 0,
+            onBackAction,
+            scrollBehavior,
+            chatViewModel::openChatTitleDialog,
+            onExportChatItemClick = { exportChat(context, chatViewModel) }
+        )
+
+        // Chat content - takes remaining space
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
         ) {
+            if (com.matrix.multigpt.BuildConfig.DEBUG) {
+                groupedMessages.forEach { (i, k) -> android.util.Log.d("grouped", "idx: $i, data: $k") }
+            }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState
+            ) {
             groupedMessages.keys.sorted().forEach { key ->
                 if (key % 2 == 0) {
                     // User
@@ -332,30 +320,58 @@ fun ChatScreen(
             }
         }
 
-        if (isChatTitleDialogOpen) {
-            ChatTitleDialog(
-                initialTitle = chatRoom.title,
-                aiCoreModeEnabled = false,
-                aiGeneratedResult = geminiNano.content,
-                isAICoreLoading = geminiNanoLoadingState == ChatViewModel.LoadingState.Loading,
-                onDefaultTitleMode = chatViewModel::generateDefaultChatTitle,
-                onAICoreTitleMode = chatViewModel::generateAIChatTitle,
-                onRetryRequest = chatViewModel::generateAIChatTitle,
-                onConfirmRequest = { title -> chatViewModel.updateChatTitle(title) },
-                onDismissRequest = chatViewModel::closeChatTitleDialog
-            )
+            // Scroll to bottom FAB
+            if (listState.canScrollForward) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 16.dp),
+                    contentAlignment = Alignment.BottomCenter
+                ) {
+                    ScrollToBottomButton {
+                        scope.launch {
+                            listState.animateScrollToItem(groupedMessages.keys.size)
+                        }
+                    }
+                }
+            }
         }
 
-        if (isEditQuestionDialogOpen) {
-            ChatQuestionEditDialog(
-                initialQuestion = editedQuestion,
-                onDismissRequest = chatViewModel::closeEditQuestionDialog,
-                onConfirmRequest = { question ->
-                    chatViewModel.editQuestion(question)
-                    chatViewModel.closeEditQuestionDialog()
-                }
-            )
+        // Bottom input box - always at bottom, above keyboard
+        ChatInputBox(
+            value = question,
+            onValueChange = { s -> chatViewModel.updateQuestion(s) },
+            chatEnabled = canUseChat,
+            sendButtonEnabled = question.trim().isNotBlank() && isIdle
+        ) {
+            chatViewModel.askQuestion()
+            focusManager.clearFocus()
         }
+    }
+
+    if (isChatTitleDialogOpen) {
+        ChatTitleDialog(
+            initialTitle = chatRoom.title,
+            aiCoreModeEnabled = false,
+            aiGeneratedResult = geminiNano.content,
+            isAICoreLoading = geminiNanoLoadingState == ChatViewModel.LoadingState.Loading,
+            onDefaultTitleMode = chatViewModel::generateDefaultChatTitle,
+            onAICoreTitleMode = chatViewModel::generateAIChatTitle,
+            onRetryRequest = chatViewModel::generateAIChatTitle,
+            onConfirmRequest = { title -> chatViewModel.updateChatTitle(title) },
+            onDismissRequest = chatViewModel::closeChatTitleDialog
+        )
+    }
+
+    if (isEditQuestionDialogOpen) {
+        ChatQuestionEditDialog(
+            initialQuestion = editedQuestion,
+            onDismissRequest = chatViewModel::closeEditQuestionDialog,
+            onConfirmRequest = { question ->
+                chatViewModel.editQuestion(question)
+                chatViewModel.closeEditQuestionDialog()
+            }
+        )
     }
 }
 
